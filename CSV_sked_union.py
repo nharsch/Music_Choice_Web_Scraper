@@ -1,6 +1,7 @@
 #from sys import argv
 import csv
 from CSV_input import csv_to_dictreader
+import openpyxl
 
 def find_date(search_id, rs_dict):
 	'''search for mach in rs_dict, return'''
@@ -18,7 +19,7 @@ def pop_date(sked_dict, rs_dict):
 			row['Creation_Date'] = find_date(search_id,rs_dict) #pop creation date
 	return sked_dict
 
-def union_skeds(sked_dict, rs_dict):
+def union_skeds_New_xlsx(sked_dict, rs_dict):
 	married_sked = pop_date(sked_dict, rs_dict)
 	for row in married_sked:
 		for e in row:
