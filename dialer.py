@@ -101,7 +101,7 @@ if __name__ == "__main__":
 	assetID = "MCPK2000000000402212"[3:-1] #strips preamble and last digit
 	provider = "MUSIC_CHOICE"
 
-print csv_to_dictreader(return_csv(assetID,provider))
+print return_csv(assetID,provider)
 
 	# table = return_BStable(assetID, provider)
 	# print type(table)

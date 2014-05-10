@@ -1,0 +1,11 @@
+dict keys
+
+SKED
+'Asset Name'
+'Title Asset ID'
+'Creation_Date'
+
+ONLINE_RESPONSE
+'Asset Name'
+'Asset ID'
+'Package Creation Date'
