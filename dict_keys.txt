@@ -1,6 +1,6 @@
 dict keys
 
-SKED
+SKED_STRUCT
 'Asset Name'
 'Title Asset ID'
 'Creation_Date'

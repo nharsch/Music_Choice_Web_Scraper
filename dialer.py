@@ -5,16 +5,16 @@ from BeautifulSoup import BeautifulSoup
 from CSV_input import csv_to_dictreader
 
 def return_BStable(assetID,provider):
-	'''dial, search, return table'''
+	'''dial BPA, search for id[:-1], return table'''
 	#initiate modules
 	br = mechanize.Browser()
 	br.set_handle_robots(False)
 	bs = BeautifulSoup
 
-	# vanigate and populate
+	# navigate and populate
 	br.open("http://bpa2.indemand.com/package-search/") #nav to search page
 	br.select_form(nr=0) #selects form, focuses
-	br['assetID'] = assetID  #sets assedID
+	br['assetID'] = assetID[:-1]  #sets assedID less last digit
 	br['provider'] = "MUSIC_CHOICE" #sets sched harcoded
 
 	#submit and read
@@ -22,6 +22,10 @@ def return_BStable(assetID,provider):
 	html = rs.read()
 	soup = BeautifulSoup(html)
 	table = soup.find("table")
+
+	#if response in table:
+		#return table
+	#return False
 	return table
 
 def BStable_to_dict(BStable):
@@ -101,7 +105,7 @@ if __name__ == "__main__":
 	assetID = "MCPK2000000000402212"[3:-1] #strips preamble and last digit
 	provider = "MUSIC_CHOICE"
 
-print return_csv(assetID,provider)
+	print return_csv(assetID,provider)
 
 	# table = return_BStable(assetID, provider)
 	# print type(table)
