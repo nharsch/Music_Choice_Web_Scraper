@@ -1,62 +1,77 @@
-#web scraper
+from csv import DictWriter
+from csv import reader
 from sys import argv
 import re
 import mechanize
 from BeautifulSoup import BeautifulSoup
-
-script, assetID = argv
-
-assetID = assetID[:-1]
-
-br = mechanize.Browser()
-br.open("http://bpa2.indemand.com/package-search/")
-
-bs = BeautifulSoup
-
-#here's the submit form
-'''
-csrfmiddlewaretoken:973cb199cb58e4c66f442b70843295bb
-assetName:
-title:
-assetID:
-rowCreationTime:
-dateDirection:gte
-studioName:
-provider:MUSIC_CHOICE
-licStartDate:
-licStartDateDirection:gte
-licEndDate:
-licEndDateDirection:gte
-processingID:Any
-'''
-
-br.select_form(nr=0)
-
-br.set_handle_robots(False)
-
-br['assetID'] = assetID
-br['provider'] = "MUSIC_CHOICE"
-
-postdict = {'assetID' : assetID,
-			'provider' : 'MUSIC_CHOICE'
-			}
+import CSV_input
+import CSV_sked_union
+import dialer
+import openpyxl
 
 
-#submit
-rs = br.submit()
-html = rs.read()
-soup = BeautifulSoup(html)
-table = soup.find("table")
+script, csv_name = argv
 
-response = ""
+# test_row = reader((open(csv_name)))
+# row_1 = test_row.next()
+# row_2 = test_row.next()
+# print row_1
+# print row_2
+
+csv_headers = CSV_input.header_to_fieldnames(csv_name)
 
 
-#search table and populate columms
-for row in table.findAll('tr')[1:]:
-    col = row.findAll('td')
-    date = col[0].string
-    asset_name = col[1].string
-    response += date+"\t"
+#import CSV
 
-print response
-print "it works"
+#create CSV data struct
+sked_struct = CSV_input.csv_to_dictreader(csv_name, csv_headers)
+
+
+#for row in data strutct:
+def dial_and_pop(sked_struct):
+	for row in sked_struct:
+		#if row date is empty
+		if row['Creation_Date'] == "":
+			#dial bpa with row ID
+			BPA_response = dialer.return_BSdict(row['Title Asset ID'], row['Provider'])
+			####get this working at work!!
+			#if ID in response
+			if BPA_response:
+				#pop dates from response to data struct
+				CSV_sked_union.pop_date(sked_struct, BPA_response)
+			else:
+				row['Creation_Date'] = "not in BPA response"	
+	return sked_struct
+	
+			#date = "not in BPA"
+#now there should be no empty dates in DATA STRUCT
+dial_and_pop(sked_struct)
+
+#fix provider bug
+for row in sked_struct:
+	row['Provider'] = "MUSIC_CHOICE"
+
+#write out DATA STRUCT to csv
+csv_output = open(csv_name[:-4]+"_BPA_output.csv", 'wb')
+CSV_out_writer = DictWriter(csv_output, csv_headers, dialect = 'excel')
+#CSV_out_writer.writeheader()
+for row in sked_struct:
+	CSV_out_writer.writerow(row)
+
+print "It worked."
+
+# wb = openpyxl.Workbook()
+# dest_filename = csv_name[:-4]
+# ws = wb.active
+# ws.title = csv_name[:-4]
+
+# wb.save(filename = dest_filename+".xlsx")
+
+
+
+
+
+#write out DATA STRUCT to xlsx
+#quit program
+
+

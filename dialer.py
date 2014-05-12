@@ -5,7 +5,7 @@ from BeautifulSoup import BeautifulSoup
 from CSV_input import csv_to_dictreader
 
 def return_BStable(assetID,provider):
-	'''dial BPA, search for id[:-1], return table'''
+	'''dial BPA, search for id[:-1], return BStable'''
 	#initiate modules
 	br = mechanize.Browser()
 	br.set_handle_robots(False)
@@ -14,7 +14,7 @@ def return_BStable(assetID,provider):
 	# navigate and populate
 	br.open("http://bpa2.indemand.com/package-search/") #nav to search page
 	br.select_form(nr=0) #selects form, focuses
-	br['assetID'] = assetID[:-1]  #sets assedID less last digit
+	br['assetID'] = assetID[-8:-1]  #sets assedID less last digit
 	br['provider'] = "MUSIC_CHOICE" #sets sched harcoded
 
 	#submit and read
@@ -23,10 +23,9 @@ def return_BStable(assetID,provider):
 	soup = BeautifulSoup(html)
 	table = soup.find("table")
 
-	#if response in table:
-		#return table
-	#return False
-	return table
+	if table:
+		return table
+	return False
 
 def BStable_to_dict(BStable):
 	table = BStable
@@ -38,9 +37,19 @@ def BStable_to_dict(BStable):
 	    asset_id = col[2].string
 	    asset_name = col[1].string
 	    dict_list.append(
-	    	{"Date" : date, "asset_name" : asset_name, "asset_id" : asset_id}
+	    	{'Package Creation Date' : date, 'Asset Name' : asset_name, 'Asset ID' : asset_id}
 	    	)
 	return dict_list
+
+def return_BSdict(assetID,provider):
+	BPA_response = return_BStable(assetID, provider)	
+	if BPA_response:
+		BPA_response = BStable_to_dict(BPA_response)
+		for row in BPA_response:
+			if row['Asset ID'][-8:] == assetID[-8:]:
+				return BPA_response
+		return False
+	return False
 
 def BStable_to_csv(table):
 	csv =""
@@ -102,10 +111,10 @@ def return_csv(asset_id, provider):
 
 
 if __name__ == "__main__":
-	assetID = "MCPK2000000000402212"[3:-1] #strips preamble and last digit
+	assetID = "MCPK2000000000402212" #strips preamble and last digit
 	provider = "MUSIC_CHOICE"
 
-	print return_csv(assetID,provider)
+	print return_BSdict(assetID,provider)
 
 	# table = return_BStable(assetID, provider)
 	# print type(table)

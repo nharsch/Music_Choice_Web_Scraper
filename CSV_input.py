@@ -8,7 +8,7 @@ import os
 #def csv_string_to_real_csv(csv_string):
 	
 
-def csv_to_dictreader(csv_name):
+def csv_to_dictreader(csv_name, header_list):
 	'''
 	takes file path
 	returns dictreader object
@@ -16,7 +16,7 @@ def csv_to_dictreader(csv_name):
 	csvfile = open(csv_name, 'rb') #opens file
 	dict_reader = []
 	#make sked dict friendlier to write on
-	for row in csv.DictReader(csvfile):
+	for row in csv.DictReader(csvfile, header_list, dialect = 'excel'):
 		dict_reader.append(row)
 
 	return dict_reader
